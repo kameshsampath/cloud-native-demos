@@ -1,0 +1,6 @@
+logging:
+  level.org.springframework.cloud: WARN
+  level.org.springframework.cloud.sleuth: WARN
+  level.org.springframework.cloud.sleuth.log: WARN
+  level.org.springframework.cloud.sleuth.trace: WARN
+  level.org.springframework.cloud.sleuth.instrument.rxjava: WARN

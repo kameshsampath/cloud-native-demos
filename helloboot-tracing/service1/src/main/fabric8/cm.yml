@@ -1,0 +1,33 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: service1
+data:
+  application.yaml: |-
+    server:
+      port: 8080
+
+    ribbon:
+      eureka:
+        enabled: false
+      client:
+        enabled: true
+
+    spring:
+      rabbitmq:
+        host: rabbitmq-client
+      cloud:
+        stream:
+          binder:
+            rabbit.default.maxConcurrency: 5
+
+    hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+
+    endpoints.health.sensitive: false
+
+    logging:
+      level.org.springframework.cloud: WARN
+      level.org.springframework.cloud.sleuth: WARN
+      level.org.springframework.cloud.sleuth.log: WARN
+      level.org.springframework.cloud.sleuth.trace: WARN
+      level.org.springframework.cloud.sleuth.instrument.rxjava: WARN

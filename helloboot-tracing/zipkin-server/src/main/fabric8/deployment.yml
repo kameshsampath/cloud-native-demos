@@ -1,0 +1,29 @@
+---
+apiVersion: extensions/v1beta1
+metadata:
+  name: zipkin
+spec:
+  replicas: 1
+  template:
+    metatdata:
+      annotations:
+        alpha.istio.io/sidecar: ignore
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTIONS
+          value: -Xmx64m -Djava.net.preferIPv4Stack=true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9411
+            scheme: HTTP
+          initialDelaySeconds: 180
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9411
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 5

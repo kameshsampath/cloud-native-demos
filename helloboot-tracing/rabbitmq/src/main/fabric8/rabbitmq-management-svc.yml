@@ -1,0 +1,10 @@
+metadata:
+  labels:
+    expose: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: "management"
+    port: 15672
+    protocol: "TCP"
+    targetPort: 15672
