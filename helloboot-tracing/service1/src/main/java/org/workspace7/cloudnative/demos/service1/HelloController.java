@@ -2,11 +2,15 @@ package org.workspace7.cloudnative.demos.service1;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author kameshs
@@ -15,45 +19,51 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class HelloController {
 
-    private Tracer tracer;
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    private final String[] TRACING_HEADERS = {"x-request-id", "x-b3-traceid", "x-b3-spanid",
+        "x-b3-sampled", "x-b3-flags", "x-ot-span-context"};
 
     @Autowired
-    public HelloController(Tracer tracer, RestTemplate restTemplate) {
-
-        this.tracer = tracer;
+    public HelloController(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    @GetMapping("/")
-    public String whoami() {
+    @GetMapping("/service1")
+    public String hello(HttpServletRequest request) {
 
-        Span span = this.tracer.createSpan("service1_whoami");
+        HttpHeaders headers = addForwardHeaders(request);
 
-        span.tag("method", "whoami");
+        HttpEntity<String> httpEntity = new HttpEntity<>("", headers);
 
-        span.logEvent("Knowing myself");
+        ResponseEntity<String> responseEntity = restTemplate.exchange("http://service2:8080/service2",
+            HttpMethod.GET, httpEntity, String.class);
 
-        this.tracer.close(span);
-
-        return String.format("Host %s", System.getenv().getOrDefault("HOST_NAME", "Unknown"));
+        return String.format(responseEntity.getBody() + " from Host: %s ",
+            System.getenv().getOrDefault("HOSTNAME", "Unknown"));
     }
 
-    @GetMapping("/hello")
-    public String hello() {
+    /**
+     *
+     * @param request
+     * @return
+     */
+    HttpHeaders addForwardHeaders(HttpServletRequest request) {
 
-        Span span = this.tracer.createSpan("service1_hello");
+        log.info("Service 1:: Adding Forward Headers ");
 
-        span.tag("method", "hello");
+        HttpHeaders httpHeaders = new HttpHeaders();
 
-        span.logEvent("Calling Service 2");
+        for (int i = 0; i < TRACING_HEADERS.length; i++) {
+            String headerName = TRACING_HEADERS[i];
+            String headerValue = request.getHeader(headerName);
+            if (headerValue != null) {
+                httpHeaders.add(headerName, headerValue);
+            }
+        }
 
-        String response = restTemplate.getForObject("http://service2/hello", String.class);
+        log.info("Service 1:: Forward Headers {}", httpHeaders);
 
-        span.logEvent("Received response from  Service 2");
-
-        this.tracer.close(span);
-
-        return response;
+        return httpHeaders;
     }
 }

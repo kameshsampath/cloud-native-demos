@@ -2,6 +2,6 @@ spring:
   cloud:
     kubernetes:
       client:
-        namespace: myproject
+        namespace: default
       reload:
         enabled: true

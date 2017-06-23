@@ -1,12 +1,18 @@
 package org.workspace7.cloudnative.demos.service2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author kameshs
@@ -16,36 +22,73 @@ import org.springframework.web.client.RestTemplate;
 public class HelloController {
 
 
-    private Tracer tracer;
     private RestTemplate restTemplate;
 
+    private final String[] TRACING_HEADERS = {"x-request-id", "x-b3-traceid", "x-b3-spanid",
+        "x-b3-sampled", "x-b3-flags", "x-ot-span-context"};
+
     @Autowired
-    public HelloController(Tracer tracer, RestTemplate restTemplate) {
-        this.tracer = tracer;
+    public HelloController(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    @GetMapping(value = "/hello")
-    public String hello() {
+    @GetMapping("/service2")
+    public String hello(HttpServletRequest request) {
 
-        Span span = this.tracer.createSpan("service2_hello");
+        final HttpHeaders headers = addForwardHeaders(request);
 
-        span.tag("method", "hello");
+        HttpEntity<String> httpEntity = new HttpEntity<>("", headers);
 
-        //Call Service 3
-        span.logEvent("Calling Service 3");
-        String resp3 = restTemplate.getForObject("http://service3/hello", String.class);
-        span.logEvent("Got response  Service 3");
-        log.info("Response from Service 3 : {}", resp3);
+        ResponseEntity<String> responseEntity = restTemplate.exchange("http://service3:8080/service3",
+            HttpMethod.GET, httpEntity, String.class);
 
-        //Call Service 4
-        span.logEvent("Calling Service 4");
-        String resp4 = restTemplate.getForObject("http://service4/hello", String.class);
-        span.logEvent("Got response from Service 4");
-        log.info("Response from Service 4 : {}", resp4);
+        String resp3 = responseEntity.getBody();
 
-        this.tracer.close(span);
+        responseEntity = restTemplate.exchange("http://service4:8080/service4",
+            HttpMethod.GET, httpEntity, String.class);
 
-        return String.format("Hello from Service 2: \n %s %s", resp3, resp4);
+        String resp4 = responseEntity.getBody();
+
+        return buildResponse(resp3, resp4);
+    }
+
+    HttpHeaders addForwardHeaders(HttpServletRequest request) {
+
+        log.info("Service 2:: Adding Forward Headers ");
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        for (int i = 0; i < TRACING_HEADERS.length; i++) {
+            String headerName = TRACING_HEADERS[i];
+            String headerValue = request.getHeader(headerName);
+            if (headerValue != null) {
+                httpHeaders.add(headerName, headerValue);
+            }
+        }
+
+        log.info("Service 2:: Forward Headers {}", httpHeaders);
+
+        return httpHeaders;
+    }
+
+
+    String buildResponse(String resp3, String resp4) {
+
+        HelloResponse helloResponse = new HelloResponse();
+
+        helloResponse.setService3Response(resp3);
+
+        helloResponse.setService4Response(resp4);
+
+        String response = "";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            response = objectMapper.writeValueAsString(helloResponse);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return response;
     }
 }

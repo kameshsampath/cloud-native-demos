@@ -1,5 +1,0 @@
----
-metadata:
-  name: service3
-spec:
-  type: LoadBalancer

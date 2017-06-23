@@ -1,6 +1,9 @@
 spec:
   replicas: ${replicas}
   template:
+    metatdata:
+      annotations:
+         alpha.istio.io/sidecar: ignore
     spec:
       containers:
        - name: ${project.artifactId}
@@ -20,5 +23,4 @@ spec:
            name: "management"
          - containerPort: 5672
            name: "amqp"
-      serviceAccountName: brewery
 

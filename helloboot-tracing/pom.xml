@@ -17,15 +17,21 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <kubernetes-client.version>2.4.1</kubernetes-client.version>
+
+
     <spring-boot.version>1.5.4.RELEASE</spring-boot.version>
     <spring-cloud.version>Dalston.SR1</spring-cloud.version>
-
     <spring-cloud-kubernetes.version>0.2.0.BUILD-SNAPSHOT</spring-cloud-kubernetes.version>
     <seluth-common-zipkin-stream.version>1.0-SNAPSHOT</seluth-common-zipkin-stream.version>
 
     <!-- Maven Plugins-->
-    <ffabric8-maven-plugin.version>3.4.1</ffabric8-maven-plugin.version>
     <spring-boot.maven.plugin.version>1.5.4.RELEASE</spring-boot.maven.plugin.version>
+
+    <!-- fabric8 maven plugin properties -->
+    <mode>kubernetes</mode>
+    <fabric8.generator.from>fabric8/java-centos-openjdk8-jdk</fabric8.generator.from>
+
   </properties>
 
   <dependencyManagement>
@@ -46,14 +52,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
-
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-kubernetes-all</artifactId>
-        <version>${spring-cloud-kubernetes.version}</version>
-      </dependency>
-
     </dependencies>
 
   </dependencyManagement>
@@ -64,7 +62,22 @@
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric8-maven-plugin</artifactId>
-          <version>${ffabric8-maven-plugin.version}</version>
+          <version>3.4.1</version>
+          <executions>
+            <execution>
+              <id>fmp</id>
+              <goals>
+                <goal>build</goal>
+              </goals>
+              <configuration>
+                <resources>
+                  <env>
+                    <AB_OFF>true</AB_OFF>
+                  </env>
+                </resources>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.springframework.boot</groupId>
@@ -80,16 +93,20 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 
   <modules>
-    <module>rabbitmq</module>
-    <module>sleuth-common-zipkin-stream</module>
-    <module>zipkin-server</module>
     <module>service4</module>
     <module>service3</module>
     <module>service2</module>
     <module>service1</module>
+    <module>helloboot-tracing-app</module>
   </modules>
 
 </project>
