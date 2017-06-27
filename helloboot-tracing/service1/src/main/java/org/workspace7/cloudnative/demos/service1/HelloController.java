@@ -19,10 +19,12 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class HelloController {
 
+    private static final String HTTP_SERVICE2_8080_SERVICE2 = "http://service2:8080/service2";
+
     private final RestTemplate restTemplate;
 
-    private final String[] TRACING_HEADERS = {"x-request-id", "x-b3-traceid", "x-b3-spanid",
-        "x-b3-sampled", "x-b3-flags", "x-ot-span-context"};
+    @Autowired
+    private IstioProperties istioProperties;
 
     @Autowired
     public HelloController(RestTemplate restTemplate) {
@@ -36,7 +38,7 @@ public class HelloController {
 
         HttpEntity<String> httpEntity = new HttpEntity<>("", headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange("http://service2:8080/service2",
+        ResponseEntity<String> responseEntity = restTemplate.exchange(HTTP_SERVICE2_8080_SERVICE2,
             HttpMethod.GET, httpEntity, String.class);
 
         return String.format(responseEntity.getBody() + " from Host: %s ",
@@ -44,7 +46,6 @@ public class HelloController {
     }
 
     /**
-     *
      * @param request
      * @return
      */
@@ -54,8 +55,7 @@ public class HelloController {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        for (int i = 0; i < TRACING_HEADERS.length; i++) {
-            String headerName = TRACING_HEADERS[i];
+        for (String headerName : istioProperties.getTracingHeaders()) {
             String headerValue = request.getHeader(headerName);
             if (headerValue != null) {
                 httpHeaders.add(headerName, headerValue);

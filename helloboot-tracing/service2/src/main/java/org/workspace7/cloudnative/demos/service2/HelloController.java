@@ -21,11 +21,13 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class HelloController {
 
+    private static final String HTTP_SERVICE3_8080_SERVICE3 = "http://service3:8080/service3";
+    private static final String HTTP_SERVICE4_8080_SERVICE4 = "http://service4:8080/service4";
 
     private RestTemplate restTemplate;
 
-    private final String[] TRACING_HEADERS = {"x-request-id", "x-b3-traceid", "x-b3-spanid",
-        "x-b3-sampled", "x-b3-flags", "x-ot-span-context"};
+    @Autowired
+    private IstioProperties istioProperties;
 
     @Autowired
     public HelloController(RestTemplate restTemplate) {
@@ -39,12 +41,12 @@ public class HelloController {
 
         HttpEntity<String> httpEntity = new HttpEntity<>("", headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange("http://service3:8080/service3",
+        ResponseEntity<String> responseEntity = restTemplate.exchange(HTTP_SERVICE3_8080_SERVICE3,
             HttpMethod.GET, httpEntity, String.class);
 
         String resp3 = responseEntity.getBody();
 
-        responseEntity = restTemplate.exchange("http://service4:8080/service4",
+        responseEntity = restTemplate.exchange(HTTP_SERVICE4_8080_SERVICE4,
             HttpMethod.GET, httpEntity, String.class);
 
         String resp4 = responseEntity.getBody();
@@ -58,8 +60,8 @@ public class HelloController {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        for (int i = 0; i < TRACING_HEADERS.length; i++) {
-            String headerName = TRACING_HEADERS[i];
+        for (String headerName : istioProperties.getTracingHeaders()) {
+            log.info("Retrieving value for  Header:{}", headerName);
             String headerValue = request.getHeader(headerName);
             if (headerValue != null) {
                 httpHeaders.add(headerName, headerValue);
