@@ -1,0 +1,14 @@
+---
+type: route-rule
+name: service4-v2-canary
+spec:
+  destination: service4.default.svc.cluster.local
+  precedence: 1
+  route:
+  - tags:
+      version: "2.0"
+    weight: 80
+  - tags:
+      version: "1.0"
+    weight: 20
+

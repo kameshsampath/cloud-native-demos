@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>service4</artifactId>
-  <version>1.0</version>
+  <version>2.0</version>
   <name>Cloud Native::Spring Cloud::Demos::Service 4</name>
 
   <dependencies>
@@ -45,35 +45,57 @@
 
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>canary</id>
+      <properties>
+        <fabric8.deploy.ignoreServices>true</fabric8.deploy.ignoreServices>
+        <!-- Deployment Config name should be different from pre-canary -->
+        <fabric8.fmp-controller.name>${project.artifactId}-v2</fabric8.fmp-controller.name>
+        <!-- the resource fragment directory specific to canary-->
+        <fabric8.resourceDir>${basedir}/src/main/fabric8-canary</fabric8.resourceDir>
+        <isito.version>jenkins@ubuntu-16-04-build-12ac793f80be71-0.1.6-dab2033</isito.version>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/fabric8-canary</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-maven-plugin</artifactId>
+            <configuration>
+              <enricher>
+                <excludes>
+                  <exclude>fmp-service</exclude>
+                </excludes>
+                <config>
+                  <spring-boot-health-check>
+                    <probeMode>last</probeMode>
+                  </spring-boot-health-check>
+                </config>
+              </enricher>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/fabric8</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
     <plugins>
-
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <configuration>
-          <enricher>
-            <config>
-              <spring-boot-health-check>
-                <probeMode>last</probeMode>
-              </spring-boot-health-check>
-            </config>
-          </enricher>
-        </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
     </plugins>
   </build>
 
