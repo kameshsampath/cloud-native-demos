@@ -31,6 +31,10 @@
     <!-- fabric8 maven plugin properties -->
     <mode>kubernetes</mode>
     <fabric8.generator.from>fabric8/java-centos-openjdk8-jdk</fabric8.generator.from>
+    <fabric8-maven-plugin.version>3.4-SNAPSHOT</fabric8-maven-plugin.version>
+
+    <!-- Istio Version-->
+    <isito.version>jenkins@ubuntu-16-04-build-12ac793f80be71-0.1.6-dab2033</isito.version>
 
   </properties>
 
@@ -62,14 +66,23 @@
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>fabric8-maven-plugin</artifactId>
-          <version>3.4.1</version>
+          <version>${fabric8-maven-plugin.version}</version>
           <executions>
             <execution>
               <id>fmp</id>
               <goals>
                 <goal>build</goal>
+                <goal>resource</goal>
+                <goal>helm</goal>
               </goals>
               <configuration>
+                <enricher>
+                  <config>
+                    <spring-boot-health-check>
+                      <probeMode>last</probeMode>
+                    </spring-boot-health-check>
+                  </config>
+                </enricher>
                 <resources>
                   <env>
                     <AB_OFF>true</AB_OFF>
@@ -93,12 +106,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
   </build>
 
   <modules>
