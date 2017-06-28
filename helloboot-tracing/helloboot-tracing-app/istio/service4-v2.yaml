@@ -4,7 +4,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: service4
+  name: service4-v2
 spec:
   replicas: 1
   template:
