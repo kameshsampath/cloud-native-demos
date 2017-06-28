@@ -6,7 +6,7 @@
 
   <groupId>org.workspace7.cloud</groupId>
   <artifactId>helloboot-tracing</artifactId>
-  <version>1.0</version>
+  <version>3.0</version>
 
   <packaging>pom</packaging>
 
@@ -31,7 +31,7 @@
     <!-- fabric8 maven plugin properties -->
     <mode>kubernetes</mode>
     <fabric8.generator.from>fabric8/java-centos-openjdk8-jdk</fabric8.generator.from>
-    <fabric8-maven-plugin.version>3.4.2</fabric8-maven-plugin.version>
+    <fabric8-maven-plugin.version>3.4-SNAPSHOT</fabric8-maven-plugin.version>
 
     <!-- Istio Version-->
     <isito.version>jenkins@ubuntu-16-04-build-12ac793f80be71-0.1.6-dab2033</isito.version>
@@ -72,6 +72,8 @@
               <id>fmp</id>
               <goals>
                 <goal>build</goal>
+                <goal>resource</goal>
+                <goal>helm</goal>
               </goals>
               <configuration>
                 <resources>

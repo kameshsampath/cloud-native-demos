@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>service2</artifactId>
-  <version>1.0</version>
+  <version>3.0</version>
   <name>Cloud Native::Spring Cloud::Demos::Service 2</name>
 
 
@@ -57,6 +57,15 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
+        <configuration>
+          <enricher>
+            <config>
+              <spring-boot-health-check>
+                <probeMode>last</probeMode>
+              </spring-boot-health-check>
+            </config>
+          </enricher>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>

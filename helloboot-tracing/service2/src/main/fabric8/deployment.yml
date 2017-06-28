@@ -1,5 +1,63 @@
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
-metadata:
-  name: ${project.artifactId}
+spec:
+  template:
+    metadata:
+      annotations:
+        alpha.istio.io/sidecar: injected
+        alpha.istio.io/version: jenkins@ubuntu-16-04-build-12ac793f80be71-0.1.6-dab2033
+    spec:
+      containers:
+      - name: proxy
+        args:
+        - proxy
+        - sidecar
+        - -v
+        - "2"
+        - --passthrough
+        - "8080"
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy_debug:0.1
+        imagePullPolicy: Always
+        resources: {}
+        securityContext:
+          runAsUser: 1337
+      initContainers:
+      - name: init
+        args:
+        - -p
+        - 15001
+        - -u
+        - 1337
+        image: docker.io/istio/init:0.1
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - name: enable-core-dump
+        args:
+        - -c
+        - sysctl
+        - -w
+        - kernel.core_pattern=/tmp/core.%e.%p.%t \u0026\u0026 ulimit -c unlimited
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        securityContext:
+          privileged: true
+status: {}
+---
