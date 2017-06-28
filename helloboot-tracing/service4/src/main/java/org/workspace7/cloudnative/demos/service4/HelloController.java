@@ -38,7 +38,7 @@ public class HelloController {
 
     private String message() {
 
-        return String.format("V2: Hello by Service 4 from %s ",
+        return String.format("V1: Hello by Service 4 from %s ",
             System.getenv().getOrDefault("HOSTNAME", "Unknown"));
     }
 }

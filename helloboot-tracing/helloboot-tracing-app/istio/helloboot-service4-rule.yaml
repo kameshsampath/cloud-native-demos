@@ -11,4 +11,3 @@ spec:
   - tags:
       version: "1.0"
     weight: 20
-

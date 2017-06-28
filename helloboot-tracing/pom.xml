@@ -17,7 +17,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kubernetes-client.version>2.4.1</kubernetes-client.version>
+    <kubernetes-client.version>2.4-SNAPSHOT</kubernetes-client.version>
 
 
     <spring-boot.version>1.5.4.RELEASE</spring-boot.version>
@@ -31,7 +31,7 @@
     <!-- fabric8 maven plugin properties -->
     <mode>kubernetes</mode>
     <fabric8.generator.from>fabric8/java-centos-openjdk8-jdk</fabric8.generator.from>
-    <fabric8-maven-plugin.version>3.4-SNAPSHOT</fabric8-maven-plugin.version>
+    <fabric8-maven-plugin.version>3.4.2</fabric8-maven-plugin.version>
 
     <!-- Istio Version-->
     <isito.version>jenkins@ubuntu-16-04-build-12ac793f80be71-0.1.6-dab2033</isito.version>
@@ -72,17 +72,8 @@
               <id>fmp</id>
               <goals>
                 <goal>build</goal>
-                <goal>resource</goal>
-                <goal>helm</goal>
               </goals>
               <configuration>
-                <enricher>
-                  <config>
-                    <spring-boot-health-check>
-                      <probeMode>last</probeMode>
-                    </spring-boot-health-check>
-                  </config>
-                </enricher>
                 <resources>
                   <env>
                     <AB_OFF>true</AB_OFF>

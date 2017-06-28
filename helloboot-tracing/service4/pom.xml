@@ -11,10 +11,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>service4</artifactId>
-  <version>2.0</version>
+  <version>1.0</version>
   <name>Cloud Native::Spring Cloud::Demos::Service 4</name>
 
   <dependencies>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>${kubernetes-client.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -41,6 +47,12 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
       <version>${spring-cloud-kubernetes.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.fabric8</groupId>
+          <artifactId>kubernetes-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
